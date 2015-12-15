@@ -1,6 +1,8 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <NeoPixelBus.h>
+#include <ESP8266HTTPClient.h>
+#include <Streaming.h>
 
 
 const char* ssid = "vladiHome";
@@ -59,6 +61,30 @@ void shine() {
   
   server.send(200, "text/plain", "color set");
 }
+
+int sendPing() {
+  HTTPClient http;
+  http.begin("http://ping.eu/");
+  http.sendRequest("HEAD", (uint8_t*)"", 0);
+
+  //302 - no connection
+  //200 - connection ok
+}
+
+String getTalkback(String tbID, String tbKey) {
+  Serial << "getting Talkback" << endl;
+  HTTPClient http;
+  http.begin(String("http://api.thingspeak.com/talkbacks/") + tbID + "/commands/execute?api_key=" + tbKey);
+  //int rc = http.GET();
+  int rc = http.sendRequest("HEAD", (uint8_t*)"", 0);
+  Serial << "response = " << rc << endl;
+  if (rc >0) Serial << " >> " << http.getString();
+  Serial << "1 " << ESP.getFreeHeap() << endl;
+  Serial << "2 "<< ESP.getFreeHeap() << endl;
+  Serial << "3 "<< ESP.getFreeHeap() << endl;
+  Serial << "4 "<< ESP.getFreeHeap() << endl;
+}
+
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
@@ -76,7 +102,34 @@ void setup() {
   Serial.print(WiFi.localIP());
   Serial.println("/ in your browser to see it working");
   strip.Begin();
- 
+//
+  sendPing();
+  Serial << ESP.getFreeHeap() << endl;
+  delay(1000);
+  sendPing();
+  Serial << ESP.getFreeHeap() << endl;
+  delay(1000);
+  sendPing();
+  Serial << ESP.getFreeHeap() << endl;
+  delay(1000);
+  sendPing();
+  Serial << ESP.getFreeHeap() << endl;
+  delay(1000);
+  sendPing();
+  Serial << ESP.getFreeHeap() << endl;
+  delay(1000);
+//  getTalkback("4527", "D7I11XXEVF2PSIAC");
+//  Serial << ESP.getFreeHeap() << endl;
+//  delay(1000);
+//  getTalkback("4527", "D7I11XXEVF2PSIAC");
+//  Serial << ESP.getFreeHeap() << endl;
+//  delay(1000);
+//  getTalkback("4527", "D7I11XXEVF2PSIAC");
+//  Serial << ESP.getFreeHeap() << endl;
+//  delay(1000);
+//  getTalkback("4527", "D7I11XXEVF2PSIAC");
+//  Serial << ESP.getFreeHeap() << endl;
+//  delay(1000);
 }
 
 void loop() {
@@ -86,4 +139,6 @@ void loop() {
         strip.Show();
         delay(31); // ~30hz change cycle
     }
+  getTalkback("4527", "D7I11XXEVF2PSIAC");
+  delay(5000);
 }
